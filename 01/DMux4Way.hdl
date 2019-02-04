@@ -1,0 +1,38 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/01/DMux4Way.hdl
+
+/**
+ * 4-way demultiplexor:
+ * {a, b, c, d} = {in, 0, 0, 0} if sel == 00
+ *                {0, in, 0, 0} if sel == 01
+ *                {0, 0, in, 0} if sel == 10
+ *                {0, 0, 0, in} if sel == 11
+ * Note: selectors are read right to left rather than left to right,
+ * so the selector for b would be sel[0]=1 and sel[1]=0 rather than the other way around
+ */
+
+CHIP DMux4Way {
+    IN in, sel[2];
+    OUT a, b, c, d;
+
+    PARTS:
+    Xor (a=sel[0], b=sel[1], out=xor);
+    And (a=sel[0], b=sel[1], out=and);
+    Not (in=sel[0], out=notsel0);
+    Not (in=sel[1], out=notsel1);
+    Not (in=xor, out=notxor);
+    Not (in=and, out=notand);
+    And (a=sel[0], b=notsel1, out=negandb); //Note: it appears the selectors are read right to left rather than left to right; i.e. 01 means sel[0]=1 and sel[1]=0
+    And (a=notsel0, b=sel[1], out=negandc);
+    Or (a=false, b=in, out=s);
+    And (a=notxor, b=notand, out=t1);
+    And (a=xor, b=negandb, out=t2);  
+    And (a=xor, b=negandc, out=t3);
+    And (a=notxor, b=and, out=t4);
+    And (a=t1, b=s, out=a);
+    And (a=t2, b=s, out=b);
+    And (a=t3, b=s, out=c);
+    And (a=t4, b=s, out=d);
+}
